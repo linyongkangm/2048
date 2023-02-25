@@ -1,14 +1,12 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Prefab, instantiate } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Cell')
 export class Cell extends Component {
-    start() {
+  @property({ type: Prefab })
+  private blockPrefab: Prefab = null;
 
-    }
-
-    update(deltaTime: number) {
-        
-    }
+  generateBlock() {
+    this.node.addChild(instantiate(this.blockPrefab));
+  }
 }
-
