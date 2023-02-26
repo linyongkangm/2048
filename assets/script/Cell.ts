@@ -48,9 +48,12 @@ export class Cell extends Component {
         await this.absorbSliderBlock(cell);
         otherSliderBlock.updateValue(otherSliderBlock.getValue() * 2);
         sliderBlock.node.removeFromParent(); //合成了，删除一个
+        return true;
       }
     } else {
       await this.absorbSliderBlock(cell);
+      return true;
     }
+    return false;
   }
 }

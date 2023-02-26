@@ -42,7 +42,6 @@ export class Board extends Component {
     if (this.lockKeyDown) {
       return;
     }
-    let isMove = false;
     const starts = this.startsMap[event.keyCode];
     if (!starts) {
       return;
@@ -57,7 +56,7 @@ export class Board extends Component {
     });
     const checkerboard = this.node.getChildByName('Checkerboard');
     const cellNodes = checkerboard.getComponentsInChildren(Cell).map((cell) => cell.node);
-    const absorbPromises = [];
+    const absorbPromises: Promise<boolean>[] = [];
     cellNodeIndexGroups.forEach((cellNodeIndexGroup) => {
       cellNodeIndexGroup.slice(0, -1).forEach((cellNodeIndex, index) => {
         const cellNode = cellNodes[cellNodeIndex] as Node;
@@ -75,16 +74,14 @@ export class Board extends Component {
         }).forEach(() => {
           const otherCell = otherCells.shift();
           if (otherCell) {
-            console.log(cellNodeIndex);
             absorbPromises.push(cell.absorb(otherCell));
-            isMove = true;
           }
         });
       });
     });
     this.lockKeyDown = true;
-    await Promise.all(absorbPromises);
-    if (isMove) {
+    const movedList = await Promise.all(absorbPromises);
+    if (movedList.some((bol) => bol)) {
       this.randomGenerateSliderBlock(1);
     }
     this.lockKeyDown = false;
