@@ -46,6 +46,7 @@ export class Board extends Component {
     if (!starts) {
       return;
     }
+    this.lockKeyDown = true;
     const [length, step] =
       [KeyCode.ARROW_UP, KeyCode.ARROW_DOWN].indexOf(event.keyCode) !== -1
         ? [this.rows, this.columns]
@@ -79,7 +80,7 @@ export class Board extends Component {
         });
       });
     });
-    this.lockKeyDown = true;
+
     const movedList = await Promise.all(absorbPromises);
     if (movedList.some((bol) => bol)) {
       this.randomGenerateSliderBlock(1);
