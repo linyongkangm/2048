@@ -59,24 +59,24 @@ export class Board extends Component {
       cellNodeIndexGroup.slice(0, -1).forEach((cellNodeIndex, index) => {
         const cellNode = cellNodes[cellNodeIndex] as Node;
         const cell = cellNode.getComponent(Cell);
-        const sliderBlocks = cellNodeIndexGroup
+        const otherCells = cellNodeIndexGroup
           .slice(index + 1)
-          .map((absorbedCellNodeIndex) => {
-            const absorbedCellNode = cellNodes[absorbedCellNodeIndex] as Node;
-            return absorbedCellNode.getComponentInChildren(SliderBlock);
+          .map((otherCellNodeIndex) => {
+            const otherCellNode = cellNodes[otherCellNodeIndex] as Node;
+            return otherCellNode.getComponent(Cell);
           })
-          .filter((sliderBlock) => !!sliderBlock);
+          .filter((otherCell) => otherCell?.hasSliderBlockChild());
         // 如果cell本身没有数字块的话，先挪一个上去
-        if (!cell.getComponentInChildren(SliderBlock)) {
-          const block = sliderBlocks.shift();
-          if (block) {
-            cell.absorb(block);
+        if (!cell.hasSliderBlockChild()) {
+          const otherCell = otherCells.shift();
+          if (otherCell) {
+            cell.absorb(otherCell);
             isMove = true;
           }
         }
-        const block = sliderBlocks.shift();
-        if (block) {
-          cell.absorb(block);
+        const otherCell = otherCells.shift();
+        if (otherCell) {
+          cell.absorb(otherCell);
           isMove = true;
         }
       });
