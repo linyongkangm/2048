@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Animation, animation, Node, RealKeyframeValue, math } from 'cc';
+import { _decorator, Component, Label, Animation, AnimationClip, Node, RealKeyframeValue, math, tween } from 'cc';
 import { shuffle } from './utils/tools';
 const { ccclass } = _decorator;
 
@@ -18,35 +18,14 @@ export class SliderBlock extends Component {
     return Number(this.label.string);
   }
 
-  async moveTo(targetNode: Node) {
-    targetNode.inverseTransformPoint(this.node.position, this.node.getWorldPosition());
-    targetNode.addChild(this.node);
-    console.log(this.node.position);
-
-    const animation = this.getComponent(Animation);
-
-    const clip = animation.defaultClip;
-    const track = clip.getTrack(0);
-    const [xChannel, yChannel] = track.channels();
-
-    const startX = xChannel.curve.getKeyframeValue(0) as RealKeyframeValue;
-    startX.value = this.node.position.x;
-
-    const startY = yChannel.curve.getKeyframeValue(0) as RealKeyframeValue;
-    startY.value = this.node.position.y;
-
-    const endX = xChannel.curve.getKeyframeValue(1) as RealKeyframeValue;
-    endX.value = 0;
-
-    const endY = yChannel.curve.getKeyframeValue(1) as RealKeyframeValue;
-    endY.value = 0;
-
-    await new Promise((resolve) => {
-      animation.once(Animation.EventType.FINISHED, resolve);
-      animation.play();
+  async moveTo(endPosition: math.Vec3) {
+    await new Promise<void>((resolve) => {
+      tween(this.node)
+        .to(0.5, {
+          position: endPosition,
+        })
+        .call(resolve)
+        .start();
     });
-  }
-  onMove() {
-    console.log('onMove');
   }
 }

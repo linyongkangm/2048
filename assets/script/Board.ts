@@ -1,6 +1,5 @@
-import { _decorator, Component, instantiate, Prefab, EventKeyboard, KeyCode, input, Input, Node } from 'cc';
+import { _decorator, Component, instantiate, Prefab, EventKeyboard, KeyCode, input, Input, Node, Layout } from 'cc';
 import { Cell } from './Cell';
-import { SliderBlock } from './SliderBlock';
 import { shuffle } from './utils/tools';
 const { ccclass, property } = _decorator;
 
@@ -21,26 +20,28 @@ export class Board extends Component {
     [KeyCode.ARROW_LEFT]: Array.from({ length: this.rows }).map((_, index) => 0 + this.columns * index),
     [KeyCode.ARROW_RIGHT]: Array.from({ length: this.rows }).map((_, index) => this.columns + this.rows * index - 1),
   };
-  start() {
+  onLoad() {
+    const checkerboard = this.node.getChildByName('Checkerboard');
+    const skatingRink = this.node.getChildByName('SkatingRink');
     Array.from({
       length: this.columns * this.rows,
     }).forEach(() => {
       const cellNode = instantiate(this.cellPrefab);
-      this.node.addChild(cellNode);
+      cellNode.getComponent(Cell).setSkatingRink(skatingRink);
+      checkerboard.addChild(cellNode);
     });
-    this.randomGenerateBlock(3);
-
+    checkerboard.getComponent(Layout).updateLayout();
+  }
+  start() {
+    this.randomGenerateSliderBlock(3);
     input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
   }
-  randomGenerateBlock(num: number) {
-    shuffle(this.getComponentsInChildren(Cell))
-      .filter((cell) => !cell.hasSliderBlockChild())
-      .slice(0, num)
-      .forEach((cell) => {
-        cell.generateBlock();
-      });
-  }
-  onKeyDown(event: EventKeyboard) {
+
+  private lockKeyDown = false;
+  async onKeyDown(event: EventKeyboard) {
+    if (this.lockKeyDown) {
+      return;
+    }
     let isMove = false;
     const starts = this.startsMap[event.keyCode];
     if (!starts) {
@@ -54,7 +55,9 @@ export class Board extends Component {
     const cellNodeIndexGroups = starts.map((start) => {
       return Array.from({ length: length }).map((_, index) => start + step * index * plusOrMinusIndex);
     });
-    const cellNodes = this.getComponentsInChildren(Cell).map((cell) => cell.node);
+    const checkerboard = this.node.getChildByName('Checkerboard');
+    const cellNodes = checkerboard.getComponentsInChildren(Cell).map((cell) => cell.node);
+    const absorbPromises = [];
     cellNodeIndexGroups.forEach((cellNodeIndexGroup) => {
       cellNodeIndexGroup.slice(0, -1).forEach((cellNodeIndex, index) => {
         const cellNode = cellNodes[cellNodeIndex] as Node;
@@ -65,26 +68,34 @@ export class Board extends Component {
             const otherCellNode = cellNodes[otherCellNodeIndex] as Node;
             return otherCellNode.getComponent(Cell);
           })
-          .filter((otherCell) => otherCell?.hasSliderBlockChild());
+          .filter((otherCell) => otherCell?.hasSliderBlock());
         // 如果cell本身没有数字块的话，先挪一个上去
-        if (!cell.hasSliderBlockChild()) {
+        Array.from({
+          length: !cell.hasSliderBlock() ? 2 : 1,
+        }).forEach(() => {
           const otherCell = otherCells.shift();
           if (otherCell) {
-            cell.absorb(otherCell);
+            console.log(cellNodeIndex);
+            absorbPromises.push(cell.absorb(otherCell));
             isMove = true;
           }
-        }
-        const otherCell = otherCells.shift();
-        if (otherCell) {
-          cell.absorb(otherCell);
-          isMove = true;
-        }
+        });
       });
     });
+    this.lockKeyDown = true;
+    await Promise.all(absorbPromises);
     if (isMove) {
-      this.randomGenerateBlock(1);
+      this.randomGenerateSliderBlock(1);
     }
+    this.lockKeyDown = false;
   }
 
-  update(deltaTime: number) {}
+  randomGenerateSliderBlock(num: number) {
+    shuffle(this.getComponentsInChildren(Cell))
+      .filter((cell) => !cell.hasSliderBlock())
+      .slice(0, num)
+      .forEach((cell) => {
+        cell.generateSliderBlock();
+      });
+  }
 }
