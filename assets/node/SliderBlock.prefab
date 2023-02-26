@@ -34,10 +34,13 @@
       },
       {
         "__id__": 14
+      },
+      {
+        "__id__": 16
       }
     ],
     "_prefab": {
-      "__id__": 16
+      "__id__": 18
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -214,8 +217,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 125,
-      "height": 125
+      "width": 100,
+      "height": 100
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -239,7 +242,7 @@
     "__prefab": {
       "__id__": 11
     },
-    "_alignFlags": 45,
+    "_alignFlags": 18,
     "_target": null,
     "_left": 0,
     "_right": 0,
@@ -325,6 +328,34 @@
     "fileId": "37iCr3mf5K072J0zpP8TeJ"
   },
   {
+    "__type__": "cc.Animation",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 17
+    },
+    "playOnLoad": false,
+    "_clips": [
+      {
+        "__uuid__": "34d048e1-cb22-416a-93ed-679b951224c9",
+        "__expectedType__": "cc.AnimationClip"
+      }
+    ],
+    "_defaultClip": {
+      "__uuid__": "34d048e1-cb22-416a-93ed-679b951224c9",
+      "__expectedType__": "cc.AnimationClip"
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "94NwuAFUBO8YDeDIujZp59"
+  },
+  {
     "__type__": "cc.PrefabInfo",
     "root": {
       "__id__": 1
@@ -333,6 +364,7 @@
       "__id__": 0
     },
     "fileId": "2e5WuhAGRD4bRERLpIm053",
+    "instance": null,
     "targetOverrides": null
   }
 ]

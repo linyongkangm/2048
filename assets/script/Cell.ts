@@ -10,16 +10,18 @@ export class Cell extends Component {
   generateBlock() {
     this.node.addChild(instantiate(this.blockPrefab));
   }
-  absorb(cell: Cell) {
+  async absorb(cell: Cell) {
     const sliderBlock = this.getComponentInChildren(SliderBlock);
     const otherSliderBlock = cell.getComponentInChildren(SliderBlock);
+
     if (sliderBlock) {
       if (sliderBlock.getValue() === otherSliderBlock.getValue()) {
-        otherSliderBlock.node.removeFromParent();
-        sliderBlock.updateValue(sliderBlock.getValue() * 2);
+        await otherSliderBlock.moveTo(this.node);
+        otherSliderBlock.updateValue(otherSliderBlock.getValue() * 2);
+        sliderBlock.node.removeFromParent();
       }
     } else {
-      this.node.addChild(otherSliderBlock.node);
+      await otherSliderBlock.moveTo(this.node);
     }
   }
   hasSliderBlockChild() {
