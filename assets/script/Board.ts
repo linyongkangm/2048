@@ -86,6 +86,7 @@ export class Board extends Component {
       this.randomGenerateSliderBlock(5);
       if (this.finalDecision()) {
         console.log('终局了');
+        return;
       }
     }
     this.lockKeyDown = false;
@@ -107,8 +108,7 @@ export class Board extends Component {
       return this.getComponentsInChildren(Cell).every((cell, index, cellGroup) => {
         const value = cell.getSliderBlock().getValue();
         const rightCell = (index + 1) % this.columns === 0 ? undefined : cellGroup[index + 1];
-        const lastRowBeginIndex = (this.rows - 1) * this.columns;
-        const bottomCell = index + this.columns >= lastRowBeginIndex ? undefined : cellGroup[index + this.columns];
+        const bottomCell = cellGroup[index + this.columns];
         return value !== rightCell?.getSliderBlock().getValue() && value !== bottomCell?.getSliderBlock().getValue();
       });
     }
