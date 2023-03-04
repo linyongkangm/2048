@@ -1,6 +1,7 @@
 import { _decorator, Component, instantiate, Prefab, EventKeyboard, KeyCode, input, Input, Node, Layout } from 'cc';
 import { Cell } from './Cell';
 import { shuffle } from './utils/tools';
+import BoardMng from './BoardMng';
 const { ccclass, property } = _decorator;
 
 @ccclass('Board')
@@ -8,26 +9,18 @@ export class Board extends Component {
   @property({ type: Prefab })
   private cellPrefab: Prefab = null;
 
-  private columns = 4; // 列数
-  private rows = 4; // 行数
-  private startsMap: {
-    [index: number]: number[];
-  } = {
-    [KeyCode.ARROW_UP]: Array.from({ length: this.columns }).map((_, index) => 0 + index),
-    [KeyCode.ARROW_DOWN]: Array.from({ length: this.columns }).map(
-      (_, index) => this.columns * (this.rows - 1) + index
-    ),
-    [KeyCode.ARROW_LEFT]: Array.from({ length: this.rows }).map((_, index) => 0 + this.columns * index),
-    [KeyCode.ARROW_RIGHT]: Array.from({ length: this.rows }).map((_, index) => this.columns + this.rows * index - 1),
-  };
+  private columns = BoardMng.getColums(); // 列数
+  private rows = BoardMng.getRows(); // 行数
   onLoad() {
     const checkerboard = this.node.getChildByName('Checkerboard');
+    BoardMng.registerCheckerboard(checkerboard);
     const skatingRink = this.node.getChildByName('SkatingRink');
+    BoardMng.registerSkatingRink(skatingRink);
+
     Array.from({
       length: this.columns * this.rows,
     }).forEach(() => {
       const cellNode = instantiate(this.cellPrefab);
-      cellNode.getComponent(Cell).setSkatingRink(skatingRink);
       checkerboard.addChild(cellNode);
     });
     checkerboard.getComponent(Layout).updateLayout();
@@ -42,7 +35,7 @@ export class Board extends Component {
     if (this.lockKeyDown) {
       return;
     }
-    const starts = this.startsMap[event.keyCode];
+    const starts = BoardMng.startsMap[event.keyCode];
     if (!starts) {
       return;
     }

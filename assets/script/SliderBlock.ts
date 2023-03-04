@@ -1,11 +1,17 @@
-import { _decorator, Component, Label, Animation, AnimationClip, Node, RealKeyframeValue, math, tween } from 'cc';
+import { _decorator, Component, Label, UITransform, math, tween } from 'cc';
 import { shuffle } from './utils/tools';
+import BoardMng from './BoardMng';
 const { ccclass } = _decorator;
 
 @ccclass('SliderBlock')
 export class SliderBlock extends Component {
   private static optionalValue = [2, 4, 8];
   onLoad() {
+    const cellSize = BoardMng.getCellSize();
+    const uiTransfrom = this.node.getComponent(UITransform);
+    uiTransfrom.width = cellSize.width;
+    uiTransfrom.height = cellSize.height;
+
     const value = shuffle(SliderBlock.optionalValue)[0];
     this.updateValue(value);
   }

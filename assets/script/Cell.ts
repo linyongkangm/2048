@@ -1,5 +1,6 @@
-import { _decorator, Component, Prefab, instantiate, Node, math } from 'cc';
+import { _decorator, Component, Prefab, instantiate, Node, math, UITransform } from 'cc';
 import { SliderBlock } from './SliderBlock';
+import BoardMng from './BoardMng';
 const { ccclass, property } = _decorator;
 
 @ccclass('Cell')
@@ -7,9 +8,11 @@ export class Cell extends Component {
   @property({ type: Prefab })
   private blockPrefab: Prefab = null;
 
-  private skatingRink: Node;
-  public setSkatingRink(node: Node) {
-    this.skatingRink = node;
+  onLoad() {
+    const cellSize = BoardMng.getCellSize();
+    const uiTransfrom = this.node.getComponent(UITransform);
+    uiTransfrom.width = cellSize.width;
+    uiTransfrom.height = cellSize.height;
   }
 
   private sliderBlock: SliderBlock | undefined;
@@ -27,8 +30,8 @@ export class Cell extends Component {
   }
   generateSliderBlock() {
     const sliderBlockNode = instantiate(this.blockPrefab);
-    this.skatingRink.addChild(sliderBlockNode);
-    this.skatingRink.inverseTransformPoint(sliderBlockNode.position, this.node.getWorldPosition());
+    BoardMng.getSkatingRink().addChild(sliderBlockNode);
+    BoardMng.getSkatingRink().inverseTransformPoint(sliderBlockNode.position, this.node.getWorldPosition());
     this.sliderBlock = sliderBlockNode.getComponent(SliderBlock);
   }
   // 从cell把他的SliderBlock吸过来
@@ -36,7 +39,7 @@ export class Cell extends Component {
     this.replaceSliderBlock(cell.sliderBlock);
     cell.removeSliderBlock();
     const endPosition = new math.Vec3();
-    this.skatingRink.inverseTransformPoint(endPosition, this.node.getWorldPosition());
+    BoardMng.getSkatingRink().inverseTransformPoint(endPosition, this.node.getWorldPosition());
     await this.sliderBlock.moveTo(endPosition);
   }
   async absorb(cell: Cell) {
