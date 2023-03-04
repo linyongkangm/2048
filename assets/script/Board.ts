@@ -83,17 +83,39 @@ export class Board extends Component {
 
     const movedList = await Promise.all(absorbPromises);
     if (movedList.some((bol) => bol)) {
-      this.randomGenerateSliderBlock(1);
+      this.randomGenerateSliderBlock(5);
+      if (this.finalDecision()) {
+        console.log('终局了');
+      }
     }
     this.lockKeyDown = false;
   }
 
   randomGenerateSliderBlock(num: number) {
-    shuffle(this.getComponentsInChildren(Cell))
-      .filter((cell) => !cell.hasSliderBlock())
+    const emptyCells = this.findEmptyCells();
+    shuffle(emptyCells)
       .slice(0, num)
       .forEach((cell) => {
         cell.generateSliderBlock();
       });
+  }
+
+  // 没有空格了，相邻cell上的block不能合并，为终局
+  finalDecision() {
+    const emptyCells = this.findEmptyCells();
+    if (emptyCells.length === 0) {
+      return this.getComponentsInChildren(Cell).every((cell, index, cellGroup) => {
+        const value = cell.getSliderBlock().getValue();
+        const rightCell = (index + 1) % this.columns === 0 ? undefined : cellGroup[index + 1];
+        const lastRowBeginIndex = (this.rows - 1) * this.columns;
+        const bottomCell = index + this.columns >= lastRowBeginIndex ? undefined : cellGroup[index + this.columns];
+        return value !== rightCell?.getSliderBlock().getValue() && value !== bottomCell?.getSliderBlock().getValue();
+      });
+    }
+    return false;
+  }
+
+  findEmptyCells() {
+    return this.getComponentsInChildren(Cell).filter((cell) => !cell.hasSliderBlock());
   }
 }

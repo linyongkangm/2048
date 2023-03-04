@@ -5,7 +5,7 @@ const { ccclass } = _decorator;
 @ccclass('SliderBlock')
 export class SliderBlock extends Component {
   private static optionalValue = [2, 4, 8];
-  start() {
+  onLoad() {
     const value = shuffle(SliderBlock.optionalValue)[0];
     this.updateValue(value);
   }
