@@ -4,23 +4,25 @@ class BoardMng {
   private checkerboard: Node;
   public registerCheckerboard(checkerboard: Node) {
     this.checkerboard = checkerboard;
-
-    const uiTransform = checkerboard.getComponent(UITransform);
+    this.updateCheckerboardProps();
+  }
+  public getCheckerboard() {
+    return this.checkerboard;
+  }
+  private updateCheckerboardProps() {
+    const uiTransform = this.checkerboard.getComponent(UITransform);
     const size = {
       width: uiTransform.width,
       height: uiTransform.height,
     };
-    const layout = checkerboard.getComponent(Layout);
-
+    const layout = this.checkerboard.getComponent(Layout);
+    layout.constraintNum = this.columns;
     const innerWidth = size.width - layout.paddingLeft - layout.paddingRight;
     const cellWidth = (innerWidth - layout.spacingX * (this.columns - 1)) / this.columns;
     this.setCellSize({
       width: cellWidth,
       height: cellWidth,
     });
-  }
-  public getCheckerboard() {
-    return this.checkerboard;
   }
   private skatingRink: Node;
   public registerSkatingRink(skatingRink: Node) {
@@ -30,7 +32,7 @@ class BoardMng {
     return this.skatingRink;
   }
 
-  private columns = 4;
+  private columns = 5;
   public setColums(columns: number) {
     this.columns = columns;
   }
@@ -38,7 +40,7 @@ class BoardMng {
     return this.columns;
   }
 
-  private rows = 4;
+  private rows = 6;
   public setRows(rows: number) {
     this.rows = rows;
   }

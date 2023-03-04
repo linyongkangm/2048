@@ -9,8 +9,6 @@ export class Board extends Component {
   @property({ type: Prefab })
   private cellPrefab: Prefab = null;
 
-  private columns = BoardMng.getColums(); // 列数
-  private rows = BoardMng.getRows(); // 行数
   onLoad() {
     const checkerboard = this.node.getChildByName('Checkerboard');
     BoardMng.registerCheckerboard(checkerboard);
@@ -18,7 +16,7 @@ export class Board extends Component {
     BoardMng.registerSkatingRink(skatingRink);
 
     Array.from({
-      length: this.columns * this.rows,
+      length: BoardMng.getColums() * BoardMng.getRows(),
     }).forEach(() => {
       const cellNode = instantiate(this.cellPrefab);
       checkerboard.addChild(cellNode);
@@ -42,14 +40,15 @@ export class Board extends Component {
     this.lockKeyDown = true;
     const [length, step] =
       [KeyCode.ARROW_UP, KeyCode.ARROW_DOWN].indexOf(event.keyCode) !== -1
-        ? [this.rows, this.columns]
-        : [this.columns, 1];
+        ? [BoardMng.getRows(), BoardMng.getColums()]
+        : [BoardMng.getColums(), 1];
     const plusOrMinusIndex = [KeyCode.ARROW_UP, KeyCode.ARROW_LEFT].indexOf(event.keyCode) !== -1 ? 1 : -1;
     const cellNodeIndexGroups = starts.map((start) => {
       return Array.from({ length: length }).map((_, index) => start + step * index * plusOrMinusIndex);
     });
-    const checkerboard = this.node.getChildByName('Checkerboard');
-    const cellNodes = checkerboard.getComponentsInChildren(Cell).map((cell) => cell.node);
+    const cellNodes = BoardMng.getCheckerboard()
+      .getComponentsInChildren(Cell)
+      .map((cell) => cell.node);
     const absorbPromises: Promise<boolean>[] = [];
     cellNodeIndexGroups.forEach((cellNodeIndexGroup) => {
       cellNodeIndexGroup.slice(0, -1).forEach((cellNodeIndex, index) => {
@@ -76,7 +75,7 @@ export class Board extends Component {
 
     const movedList = await Promise.all(absorbPromises);
     if (movedList.some((bol) => bol)) {
-      this.randomGenerateSliderBlock(5);
+      this.randomGenerateSliderBlock(1);
       if (this.finalDecision()) {
         console.log('终局了');
         return;
@@ -100,8 +99,8 @@ export class Board extends Component {
     if (emptyCells.length === 0) {
       return this.getComponentsInChildren(Cell).every((cell, index, cellGroup) => {
         const value = cell.getSliderBlock().getValue();
-        const rightCell = (index + 1) % this.columns === 0 ? undefined : cellGroup[index + 1];
-        const bottomCell = cellGroup[index + this.columns];
+        const rightCell = (index + 1) % BoardMng.getColums() === 0 ? undefined : cellGroup[index + 1];
+        const bottomCell = cellGroup[index + BoardMng.getColums()];
         return value !== rightCell?.getSliderBlock().getValue() && value !== bottomCell?.getSliderBlock().getValue();
       });
     }
