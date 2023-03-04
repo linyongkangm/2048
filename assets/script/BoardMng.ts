@@ -49,13 +49,13 @@ class BoardMng {
   }
 
   public get startsMap() {
+    const top = Array.from({ length: this.columns }).map((_, index) => 0 + index);
+    const left = Array.from({ length: this.rows }).map((_, index) => 0 + this.columns * index);
     return {
-      [KeyCode.ARROW_UP]: Array.from({ length: this.columns }).map((_, index) => 0 + index),
-      [KeyCode.ARROW_DOWN]: Array.from({ length: this.columns }).map(
-        (_, index) => this.columns * (this.rows - 1) + index
-      ),
-      [KeyCode.ARROW_LEFT]: Array.from({ length: this.rows }).map((_, index) => 0 + this.columns * index),
-      [KeyCode.ARROW_RIGHT]: Array.from({ length: this.rows }).map((_, index) => this.columns + this.rows * index - 1),
+      [KeyCode.ARROW_UP]: top,
+      [KeyCode.ARROW_DOWN]: top.map((num) => this.columns * this.rows - num - 1),
+      [KeyCode.ARROW_LEFT]: left,
+      [KeyCode.ARROW_RIGHT]: left.map((num) => num + this.columns - 1),
     };
   }
 
