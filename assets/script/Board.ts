@@ -1,7 +1,20 @@
-import { _decorator, Component, instantiate, Prefab, EventKeyboard, KeyCode, input, Input, Node, Layout } from 'cc';
+import {
+  _decorator,
+  Component,
+  instantiate,
+  Prefab,
+  EventKeyboard,
+  KeyCode,
+  input,
+  Input,
+  Node,
+  Layout,
+  director,
+} from 'cc';
 import { Cell } from './Cell';
 import { shuffle } from './utils/tools';
 import BoardMng from './BoardMng';
+import { Score } from './Score';
 const { ccclass, property } = _decorator;
 
 @ccclass('Board')
@@ -49,7 +62,10 @@ export class Board extends Component {
     const cellNodes = BoardMng.getCheckerboard()
       .getComponentsInChildren(Cell)
       .map((cell) => cell.node);
-    const absorbPromises: Promise<boolean>[] = [];
+    const absorbPromises: Promise<{
+      moved: boolean;
+      value: number;
+    }>[] = [];
     cellNodeIndexGroups.forEach((cellNodeIndexGroup) => {
       cellNodeIndexGroup.slice(0, -1).forEach((cellNodeIndex, index) => {
         const cellNode = cellNodes[cellNodeIndex] as Node;
@@ -74,7 +90,12 @@ export class Board extends Component {
     });
 
     const movedList = await Promise.all(absorbPromises);
-    if (movedList.some((bol) => bol)) {
+    if (movedList.some((result) => result.moved)) {
+      this.updateScoreValue(
+        movedList.reduce((prev, currnet) => {
+          return prev + currnet.value || 0;
+        }, 0)
+      );
       this.randomGenerateSliderBlock(1);
       if (this.finalDecision()) {
         console.log('终局了');
@@ -109,5 +130,12 @@ export class Board extends Component {
 
   findEmptyCells() {
     return this.getComponentsInChildren(Cell).filter((cell) => !cell.hasSliderBlock());
+  }
+
+  updateScoreValue(value: number) {
+    const scene = director.getScene();
+    const scoreNode = scene.getChildByPath('Canvas/Header/ScoreGroup/Score');
+    const score = scoreNode.getComponent(Score);
+    score.addedValue(value);
   }
 }

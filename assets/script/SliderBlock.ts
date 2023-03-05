@@ -27,7 +27,7 @@ export class SliderBlock extends Component {
   async moveTo(endPosition: math.Vec3) {
     await new Promise<void>((resolve) => {
       tween(this.node)
-        .to(0.5, {
+        .to(0.2, {
           position: endPosition,
         })
         .call(resolve)

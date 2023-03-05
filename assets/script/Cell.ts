@@ -45,18 +45,23 @@ export class Cell extends Component {
   async absorb(cell: Cell) {
     const sliderBlock = this.getSliderBlock();
     const otherSliderBlock = cell.getSliderBlock();
-
+    const result = {
+      moved: false,
+      value: 0,
+    };
     if (sliderBlock) {
       if (sliderBlock.getValue() === otherSliderBlock.getValue()) {
         await this.absorbSliderBlock(cell);
-        otherSliderBlock.updateValue(otherSliderBlock.getValue() * 2);
+        const value = otherSliderBlock.getValue() * 2;
+        otherSliderBlock.updateValue(value);
         sliderBlock.node.removeFromParent(); //合成了，删除一个
-        return true;
+        result.moved = true;
+        result.value = value;
       }
     } else {
       await this.absorbSliderBlock(cell);
-      return true;
+      result.moved = true;
     }
-    return false;
+    return result;
   }
 }

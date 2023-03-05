@@ -423,7 +423,7 @@
     "propertyPath": [
       "_name"
     ],
-    "value": "Score"
+    "value": "Best"
   },
   {
     "__type__": "cc.TargetInfo",
