@@ -37,8 +37,11 @@ export class Board extends Component {
     checkerboard.getComponent(Layout).updateLayout();
   }
   start() {
-    this.randomGenerateSliderBlock(3);
+    this.startGame();
     input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+  }
+  startGame() {
+    this.randomGenerateSliderBlock(3);
   }
 
   private lockKeyDown = false;
@@ -94,7 +97,7 @@ export class Board extends Component {
       const addedValue = movedList.reduce((prev, currnet) => {
         return prev + currnet.value || 0;
       }, 0);
-      this.updateScoreValue(addedValue);
+      this.addedScoreValue(addedValue);
       this.randomGenerateSliderBlock(1);
       if (this.finalDecision()) {
         console.log('终局了');
@@ -131,10 +134,29 @@ export class Board extends Component {
     return this.getComponentsInChildren(Cell).filter((cell) => !cell.hasSliderBlock());
   }
 
-  updateScoreValue(value: number) {
+  addedScoreValue(value: number) {
     const scene = director.getScene();
     const scoreNode = scene.getChildByPath('Canvas/Header/ScoreGroup/Score');
     const score = scoreNode.getComponent(Score);
     score.addedValue(value);
+  }
+
+  onReplay() {
+    if (this.lockKeyDown) {
+      return;
+    }
+    const scene = director.getScene();
+    const scoreNode = scene.getChildByPath('Canvas/Header/ScoreGroup/Score');
+    const score = scoreNode.getComponent(Score);
+    score.updateValue(0);
+
+    BoardMng.getSkatingRink().removeAllChildren();
+    BoardMng.getCheckerboard()
+      .getComponentsInChildren(Cell)
+      .forEach((cell) => {
+        cell.removeSliderBlock();
+      });
+
+    this.startGame();
   }
 }
