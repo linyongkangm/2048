@@ -18,6 +18,7 @@ export class SliderBlock extends Component {
   updateValue(value: number) {
     const label = this.getComponentInChildren(Label);
     label.string = `${value}`;
+    label.fontSize = 80 - (label.string.length - 1) * 14;
   }
   getValue() {
     const label = this.getComponentInChildren(Label);
