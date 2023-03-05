@@ -14,7 +14,9 @@ export class Score extends Component {
   }
   updateValue(value: number) {
     const valueNode = this.node.getChildByName('Value');
-    valueNode.getComponent(Label).string = value + '';
+    const label = valueNode.getComponent(Label);
+    label.string = value + '';
+    label.fontSize = 30 - Math.max(label.string.length - 4, 0) * 4;
   }
   getValue() {
     const valueNode = this.node.getChildByName('Value');

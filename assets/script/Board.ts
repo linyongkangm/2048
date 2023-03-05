@@ -91,11 +91,10 @@ export class Board extends Component {
 
     const movedList = await Promise.all(absorbPromises);
     if (movedList.some((result) => result.moved)) {
-      this.updateScoreValue(
-        movedList.reduce((prev, currnet) => {
-          return prev + currnet.value || 0;
-        }, 0)
-      );
+      const addedValue = movedList.reduce((prev, currnet) => {
+        return prev + currnet.value || 0;
+      }, 0);
+      this.updateScoreValue(addedValue);
       this.randomGenerateSliderBlock(1);
       if (this.finalDecision()) {
         console.log('终局了');
