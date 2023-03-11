@@ -26,12 +26,26 @@ export class Board extends Component {
   @property({ type: Prefab })
   private configFormPrefab: Prefab = null;
 
-  onLoad() {
+  start() {
+    this.startGame();
+    input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+  }
+  startGame() {
+    // 重置分数
+    const scene = director.getScene();
+    const scoreNode = scene.getChildByPath('Canvas/Header/ScoreGroup/Score');
+    const score = scoreNode.getComponent(Score);
+    score.updateValue(0);
+
+    // 重置棋盘
     const checkerboard = this.node.getChildByName('Checkerboard');
     BoardMng.registerCheckerboard(checkerboard);
     const skatingRink = this.node.getChildByName('SkatingRink');
     BoardMng.registerSkatingRink(skatingRink);
+    checkerboard.removeAllChildren();
+    skatingRink.removeAllChildren();
 
+    // 重新构建棋盘
     Array.from({
       length: BoardMng.getColums() * BoardMng.getRows(),
     }).forEach(() => {
@@ -39,12 +53,6 @@ export class Board extends Component {
       checkerboard.addChild(cellNode);
     });
     checkerboard.getComponent(Layout).updateLayout();
-  }
-  start() {
-    this.startGame();
-    input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
-  }
-  startGame() {
     this.randomGenerateSliderBlock(3);
   }
 
@@ -157,17 +165,6 @@ export class Board extends Component {
       configForm.removeFromParent();
       this.lockKeyDown = false;
     }
-    const scene = director.getScene();
-    const scoreNode = scene.getChildByPath('Canvas/Header/ScoreGroup/Score');
-    const score = scoreNode.getComponent(Score);
-    score.updateValue(0);
-
-    BoardMng.getSkatingRink().removeAllChildren();
-    BoardMng.getCheckerboard()
-      .getComponentsInChildren(Cell)
-      .forEach((cell) => {
-        cell.removeSliderBlock();
-      });
 
     this.startGame();
   }
