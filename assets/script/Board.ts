@@ -10,6 +10,7 @@ import {
   Node,
   Layout,
   director,
+  EventTouch,
 } from 'cc';
 import { Cell } from './Cell';
 import { shuffle } from './utils/tools';
@@ -29,6 +30,7 @@ export class Board extends Component {
   start() {
     this.startGame();
     input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+    this.listenTouchEvent();
   }
   startGame() {
     // 重置分数
@@ -58,19 +60,71 @@ export class Board extends Component {
 
   private lockKeyDown = false;
   async onKeyDown(event: EventKeyboard) {
+    await this.moveByKeyCode(event.keyCode);
+  }
+  listenTouchEvent() {
+    let touchStartTag: 'starting' | 'moving' | 'ending';
+    input.on(
+      Input.EventType.TOUCH_START,
+      () => {
+        touchStartTag = 'starting';
+      },
+      this
+    );
+    input.on(
+      Input.EventType.TOUCH_CANCEL,
+      () => {
+        touchStartTag = 'ending';
+      },
+      this
+    );
+    input.on(
+      Input.EventType.TOUCH_END,
+      () => {
+        touchStartTag = 'ending';
+      },
+      this
+    );
+
+    input.on(
+      Input.EventType.TOUCH_MOVE,
+      (event) => {
+        if (touchStartTag === 'starting') {
+          const startLocation = event.touch.getStartLocationInView();
+          const location = event.touch.getLocationInView();
+          if (Math.max(Math.abs(location.x - startLocation.x), Math.abs(location.y - startLocation.y)) > 10) {
+            touchStartTag = 'moving';
+            const diffX = location.x - startLocation.x;
+            const diffY = location.y - startLocation.y;
+            if (diffX < -10) {
+              this.moveByKeyCode(KeyCode.ARROW_LEFT);
+            } else if (diffX > 10) {
+              this.moveByKeyCode(KeyCode.ARROW_RIGHT);
+            } else if (diffY < -10) {
+              this.moveByKeyCode(KeyCode.ARROW_UP);
+            } else if (diffY > 10) {
+              this.moveByKeyCode(KeyCode.ARROW_DOWN);
+            }
+          }
+        }
+      },
+      this
+    );
+  }
+  async moveByKeyCode(keyCode: KeyCode) {
     if (this.lockKeyDown) {
       return;
     }
-    const starts = BoardMng.startsMap[event.keyCode];
+    const starts = BoardMng.startsMap[keyCode];
     if (!starts) {
       return;
     }
     this.lockKeyDown = true;
     const [length, step] =
-      [KeyCode.ARROW_UP, KeyCode.ARROW_DOWN].indexOf(event.keyCode) !== -1
+      [KeyCode.ARROW_UP, KeyCode.ARROW_DOWN].indexOf(keyCode) !== -1
         ? [BoardMng.getRows(), BoardMng.getColums()]
         : [BoardMng.getColums(), 1];
-    const plusOrMinusIndex = [KeyCode.ARROW_UP, KeyCode.ARROW_LEFT].indexOf(event.keyCode) !== -1 ? 1 : -1;
+    const plusOrMinusIndex = [KeyCode.ARROW_UP, KeyCode.ARROW_LEFT].indexOf(keyCode) !== -1 ? 1 : -1;
     const cellNodeIndexGroups = starts.map((start) => {
       return Array.from({ length: length }).map((_, index) => start + step * index * plusOrMinusIndex);
     });
