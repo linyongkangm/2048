@@ -92,18 +92,23 @@ export class Board extends Component {
         if (touchStartTag === 'starting') {
           const startLocation = event.touch.getStartLocationInView();
           const location = event.touch.getLocationInView();
-          if (Math.max(Math.abs(location.x - startLocation.x), Math.abs(location.y - startLocation.y)) > 10) {
+          const limit = 20;
+          if (Math.max(Math.abs(location.x - startLocation.x), Math.abs(location.y - startLocation.y)) > limit) {
             touchStartTag = 'moving';
             const diffX = location.x - startLocation.x;
             const diffY = location.y - startLocation.y;
-            if (diffX < -10) {
-              this.moveByKeyCode(KeyCode.ARROW_LEFT);
-            } else if (diffX > 10) {
-              this.moveByKeyCode(KeyCode.ARROW_RIGHT);
-            } else if (diffY < -10) {
-              this.moveByKeyCode(KeyCode.ARROW_UP);
-            } else if (diffY > 10) {
-              this.moveByKeyCode(KeyCode.ARROW_DOWN);
+            if (Math.abs(diffY) > limit) {
+              if (diffY < -limit) {
+                this.moveByKeyCode(KeyCode.ARROW_UP);
+              } else if (diffY > limit) {
+                this.moveByKeyCode(KeyCode.ARROW_DOWN);
+              }
+            } else {
+              if (diffX < -limit) {
+                this.moveByKeyCode(KeyCode.ARROW_LEFT);
+              } else if (diffX > limit) {
+                this.moveByKeyCode(KeyCode.ARROW_RIGHT);
+              }
             }
           }
         }
@@ -164,9 +169,10 @@ export class Board extends Component {
         return prev + currnet.value || 0;
       }, 0);
       this.addedScoreValue(addedValue);
-      this.randomGenerateSliderBlock(1);
+      this.randomGenerateSliderBlock(5);
       if (this.finalDecision()) {
-        console.log('终局了');
+        this.lockKeyDown = false;
+        this.onReplay();
         return;
       }
     }
