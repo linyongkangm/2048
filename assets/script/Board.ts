@@ -15,12 +15,16 @@ import { Cell } from './Cell';
 import { shuffle } from './utils/tools';
 import BoardMng from './BoardMng';
 import { Score } from './Score';
+import { ConfigForm } from './ConfigForm';
 const { ccclass, property } = _decorator;
 
 @ccclass('Board')
 export class Board extends Component {
   @property({ type: Prefab })
   private cellPrefab: Prefab = null;
+
+  @property({ type: Prefab })
+  private configFormPrefab: Prefab = null;
 
   onLoad() {
     const checkerboard = this.node.getChildByName('Checkerboard');
@@ -141,9 +145,17 @@ export class Board extends Component {
     score.addedValue(value);
   }
 
-  onReplay() {
+  async onReplay() {
     if (this.lockKeyDown) {
       return;
+    }
+    if (this.configFormPrefab) {
+      const configForm = instantiate(this.configFormPrefab);
+      this.node.addChild(configForm);
+      this.lockKeyDown = true;
+      await configForm.getComponent(ConfigForm).waitConfirm();
+      configForm.removeFromParent();
+      this.lockKeyDown = false;
     }
     const scene = director.getScene();
     const scoreNode = scene.getChildByPath('Canvas/Header/ScoreGroup/Score');
