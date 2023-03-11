@@ -32,7 +32,7 @@ class BoardMng {
     return this.skatingRink;
   }
 
-  private columns = 5;
+  private columns = 4;
   public setColums(columns: number) {
     this.columns = columns;
   }
@@ -40,7 +40,7 @@ class BoardMng {
     return this.columns;
   }
 
-  private rows = 6;
+  private rows = 4;
   public setRows(rows: number) {
     this.rows = rows;
   }
