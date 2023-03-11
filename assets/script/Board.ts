@@ -169,7 +169,7 @@ export class Board extends Component {
         return prev + currnet.value || 0;
       }, 0);
       this.addedScoreValue(addedValue);
-      this.randomGenerateSliderBlock(5);
+      this.randomGenerateSliderBlock(Math.random() > 0.8 ? 2 : 1);
       if (this.finalDecision()) {
         this.lockKeyDown = false;
         this.onReplay();
